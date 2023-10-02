@@ -1,7 +1,8 @@
 import scrapy
 import datetime
 from urllib.parse import urljoin
-
+from amazon_scraper.items import AmazonScraperItem
+import regex as re
 
 
 
@@ -24,21 +25,25 @@ class AmazonspiderSpider(scrapy.Spider):
     
     
     def parse_page(self, response):
-        items = response.css('#gridItemRoot')[:10]
-        department=response.xpath('/html/body/div[1]/div[2]/div/div/div[1]/div/div/div[1]/h1/text()').get().split(' in ')[1]
+        items = response.css('#gridItemRoot')[:2]
+        department=response.xpath('/html/body/div[1]/div[2]/div/div/div[1]/div/div/div[1]/h1/text()').get()
+        dep=department.split(' ')[0] if department else None
         count=1
         for item in items:
             name = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/a/span/div/text()').get().strip()
             stars = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/@title').get()
+            stars_items=float(stars.split(' ')[0]) if stars else 0.0
             reviews = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/span/text()').get()
+            cleaned_reviews = re.sub(r'\D', '', reviews) if reviews else None
+            reviews_items=int(cleaned_reviews) if cleaned_reviews else 0
             item_id=item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/@id').get().strip()
 
             amazon_item = AmazonScraperItem(
                 item_id=item_id,
-                department=department,
+                department=dep,
                 name=name,
-                stars=stars,
-                reviews=reviews,
+                stars=stars_items,
+                reviews=reviews_items,
                 rank=count,
                 date=datetime.datetime.now().date()
                 )
