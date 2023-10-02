@@ -12,9 +12,19 @@ BOT_NAME = "amazon_scraper"
 SPIDER_MODULES = ["amazon_scraper.spiders"]
 NEWSPIDER_MODULE = "amazon_scraper.spiders"
 
+FEEDS={
+    'items.json':{'format':'json'} ,
+}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = "amazon_scraper (+http://www.yourdomain.com)"
+USER_AGENT = "amazon_scraper (+http://www.yourdomain.com)"
+
+
+SCRAPEOPS_API_KEY='87c5db3c-29e7-4661-8f37-0076d94ff9dd'
+SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT='https://headers.scrapeops.io/v1/user-agents'
+SCRAPEOPS_FAKE_USER_AGENT_ENABLED=True
+SCRAPEOPS_NUM_RESULTS=50
+
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

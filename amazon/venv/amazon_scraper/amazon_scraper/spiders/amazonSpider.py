@@ -30,22 +30,20 @@ class AmazonspiderSpider(scrapy.Spider):
         for item in items:
             name = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/a/span/div/text()').get().strip()
             stars = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/@title').get()
-            stars_item=stars.split(' ')[0]  if stars else 0
-            stars_item=stars if stars else 0
             reviews = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/span/text()').get()
-            reviews_item=reviews if reviews else 0
             item_id=item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/@id').get().strip()
 
-            
-            yield {
-                'item_id':item_id,
-                'department':department,
-                'name': name,
-                'stars': stars_item, 
-                'reviews': reviews_item,
-                'rank':count,
-                'date': datetime.datetime.now().date(),
-            }
+            amazon_item = AmazonScraperItem(
+                item_id=item_id,
+                department=department,
+                name=name,
+                stars=stars,
+                reviews=reviews,
+                rank=count,
+                date=datetime.datetime.now().date()
+                )
+
+            yield amazon_item
 
             count+=1
             
