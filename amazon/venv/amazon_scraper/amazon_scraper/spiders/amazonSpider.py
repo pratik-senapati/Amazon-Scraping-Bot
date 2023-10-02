@@ -48,5 +48,10 @@ class AmazonspiderSpider(scrapy.Spider):
             }
 
             count+=1
+            
+            sub_department_urls = response.css('div[role="treeitem"] a::attr(href)').getall()
+            for sub_department_url in sub_department_urls:
+                absolute_sub_department_url = urljoin(response.url, sub_department_url)
+                yield response.follow(absolute_sub_department_url, callback=self.parse_page)
     
         
