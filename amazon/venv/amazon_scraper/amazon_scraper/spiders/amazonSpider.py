@@ -29,8 +29,11 @@ class AmazonspiderSpider(scrapy.Spider):
         count=1
         for item in items:
             name = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/a/span/div/text()').get().strip()
-            stars = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/@title').get().split(' ')[0]
+            stars = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/@title').get()
+            stars_item=stars.split(' ')[0]  if stars else 0
+            stars_item=stars if stars else 0
             reviews = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/div/div/a/span/text()').get()
+            reviews_item=reviews if reviews else 0
             item_id=item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/@id').get().strip()
 
             
@@ -38,8 +41,8 @@ class AmazonspiderSpider(scrapy.Spider):
                 'item_id':item_id,
                 'department':department,
                 'name': name,
-                'stars': stars.strip() if stars else None,
-                'reviews': reviews.strip() if reviews else None,
+                'stars': stars_item, 
+                'reviews': reviews_item,
                 'rank':count,
                 'date': datetime.datetime.now().date(),
             }
