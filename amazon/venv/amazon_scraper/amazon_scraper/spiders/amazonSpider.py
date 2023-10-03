@@ -1,23 +1,36 @@
 import scrapy
 import datetime
-from urllib.parse import urljoin
+import hashlib
 from amazon_scraper.items import AmazonScraperItem
 import regex as re
-
 
 
 class AmazonspiderSpider(scrapy.Spider):
     name = "amazonSpider"
     allowed_domains = ["www.amazon.in"]
     start_urls = ["https://www.amazon.in/gp/bestsellers"]
-    
-    
+    visited_urls = set()  # Set to keep track of visited URLs
+
+    def hash_url(self, url):
+        # Create an MD5 hash of the URL
+        return hashlib.md5(url.encode('utf-8')).hexdigest()
+
     def parse(self, response):
         treeitem_divs = response.css('div[role="treeitem"] a::attr(href)').getall()
         for rel_url in treeitem_divs:
             base_url = 'https://www.amazon.in'
-            absolute_url =base_url+rel_url
-            yield response.follow(absolute_url, callback=self.parse_page)
+            absolute_url = base_url + rel_url
+            url_hash = self.hash_url(absolute_url)
+            
+
+            if url_hash not in self.visited_urls:
+                self.visited_urls.add(url_hash)  # Add hashed URL to visited set
+                yield response.follow(absolute_url, callback=self.parse_page)    
+                
+
+                
+
+            
             
             
         
@@ -25,9 +38,9 @@ class AmazonspiderSpider(scrapy.Spider):
     
     
     def parse_page(self, response):
-        items = response.css('#gridItemRoot')[:2]
+        items = response.css('#gridItemRoot')[:10]
         department=response.xpath('/html/body/div[1]/div[2]/div/div/div[1]/div/div/div[1]/h1/text()').get()
-        dep=department.split(' ')[0] if department else None
+        dep=' '.join(department.split(' ')[2:]) if department else None
         count=1
         for item in items:
             name = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/a/span/div/text()').get().strip()
@@ -52,9 +65,15 @@ class AmazonspiderSpider(scrapy.Spider):
 
             count+=1
             
-            sub_department_urls = response.css('div[role="treeitem"] a::attr(href)').getall()
-            for sub_department_url in sub_department_urls:
-                absolute_sub_department_url = urljoin(response.url, sub_department_url)
-                yield response.follow(absolute_sub_department_url, callback=self.parse_page)
+            # Follow links to subcategories and call parse_page for each subcategory page
+        sub_category_urls = response.css('div[role="treeitem"] a::attr(href)').getall()
+        for sub_category_url in sub_category_urls:
+            absolute_sub_category_url = response.urljoin(sub_category_url)
+        
+            if absolute_sub_category_url not in self.visited_urls:
+                self.visited_urls.add(absolute_sub_category_url)  # Add hashed URL to visited set
+                yield response.follow(absolute_sub_category_url, callback=self.parse)
+            
+            
     
         
