@@ -6,6 +6,7 @@ import regex as re
 
 
 class AmazonspiderSpider(scrapy.Spider):
+  
     name = "amazonSpider"
     allowed_domains = ["www.amazon.in"]
     start_urls = ["https://www.amazon.in/gp/bestsellers"]
@@ -41,6 +42,9 @@ class AmazonspiderSpider(scrapy.Spider):
         items = response.css('#gridItemRoot')[:10]
         department=response.xpath('/html/body/div[1]/div[2]/div/div/div[1]/div/div/div[1]/h1/text()').get()
         dep=' '.join(department.split(' ')[2:]) if department else None
+       
+        
+        
         count=1
         for item in items:
             name = item.xpath(f'//*[@id="p13n-asin-index-{count}"]/div[2]/div/a/span/div/text()').get().strip()
@@ -72,6 +76,7 @@ class AmazonspiderSpider(scrapy.Spider):
         
             if absolute_sub_category_url not in self.visited_urls:
                 self.visited_urls.add(absolute_sub_category_url)  # Add hashed URL to visited set
+                #call back the original parse function for further pagination
                 yield response.follow(absolute_sub_category_url, callback=self.parse)
             
             

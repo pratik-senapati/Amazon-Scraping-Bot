@@ -20,10 +20,10 @@ FEEDS={
 USER_AGENT = "amazon_scraper (+http://www.yourdomain.com)"
 
 
-SCRAPEOPS_API_KEY='87c5db3c-29e7-4661-8f37-0076d94ff9dd'
+SCRAPEOPS_API_KEY='YOUR_API_KEY'
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT='https://headers.scrapeops.io/v1/user-agents'
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED=True
-SCRAPEOPS_NUM_RESULTS=50
+SCRAPEOPS_NUM_RESULTS=100
 
 
 # Obey robots.txt rules
